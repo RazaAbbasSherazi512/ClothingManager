@@ -4,7 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api, { getWageRates, upsertWageRate, deleteWageRate } from '../services/api';
 
-const fmtRate = (n) => 'PKR ' + Number(n || 0).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const fmtRate = (n) => {
+  const num = Number(n || 0);
+  const formatted = Math.abs(num).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return num < 0 ? `-PKR ${formatted}` : `PKR ${formatted}`;
+};
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-PK') : '—';
 
 const initForm = { name: '', role: '', phone: '', status: 'Active', joinDate: '', personType: 'Worker' };

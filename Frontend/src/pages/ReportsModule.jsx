@@ -28,7 +28,11 @@ const BT = {
 const PIE_COLORS = [BT.success, BT.warning, BT.purple, BT.info, BT.danger, BT.primary, BT.teal, BT.orange];
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
-const fmt     = n => `Rs ${Number(n ?? 0).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+const fmt     = n => {
+  const num = Number(n ?? 0);
+  const formatted = Math.abs(num).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return num < 0 ? `-Rs ${formatted}` : `Rs ${formatted}`;
+};
 const fmtK    = n => {
   const v = Number(n ?? 0);
   return v >= 1000000 ? `Rs ${(v/1000000).toFixed(1)}M` : v >= 1000 ? `Rs ${(v/1000).toFixed(0)}K` : `Rs ${v}`;

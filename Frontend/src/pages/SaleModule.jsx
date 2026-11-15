@@ -16,7 +16,11 @@ const STATUS_COLORS = {
 
 const today    = () => new Date().toISOString().split('T')[0];
 const fmtDate  = d  => d ? new Date(d).toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-const fmtMoney = n  => `Rs ${Number(n ?? 0).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+const fmtMoney = n => {
+  const num = Number(n ?? 0);
+  const formatted = Math.abs(num).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return num < 0 ? `-Rs ${formatted}` : `Rs ${formatted}`;
+};
 
 const emptySaleForm    = () => ({ lotId: '', customerId: '', saleDate: today(), totalPieces: '', ratePerPiece: '', discount: '0', notes: '' });
 const emptyPaymentForm = () => ({ amount: '', paymentDate: today(), paymentMethod: 'Cash', referenceNo: '', notes: '', accountId: '' });

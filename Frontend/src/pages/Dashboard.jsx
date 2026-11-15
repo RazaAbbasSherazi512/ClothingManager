@@ -14,7 +14,11 @@ import { useTheme } from '../context/ThemeContext';
 import LotHistoryModal from '../components/LotHistoryModal';
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
-const fmt   = n => `Rs ${Number(n ?? 0).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+const fmt   = n => {
+  const num = Number(n ?? 0);
+  const formatted = Math.abs(num).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return num < 0 ? `-Rs ${formatted}` : `Rs ${formatted}`;
+};
 const fmtK  = n => {
   const v = Number(n ?? 0);
   const abs = Math.abs(v);

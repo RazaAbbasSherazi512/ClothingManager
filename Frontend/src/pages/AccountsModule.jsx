@@ -68,7 +68,11 @@ export default function AccountsModule() {
 
   useEffect(() => { loadAll(); }, []);
 
-  const fmt = (n) => 'PKR ' + Number(n || 0).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const fmt = (n) => {
+    const num = Number(n || 0);
+    const formatted = Math.abs(num).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    return num < 0 ? `-PKR ${formatted}` : `PKR ${formatted}`;
+  };
 
   const saveAccount = async () => {
     if (!accForm.name || !accForm.categoryId) return;

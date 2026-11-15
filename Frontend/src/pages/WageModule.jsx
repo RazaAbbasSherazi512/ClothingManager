@@ -18,7 +18,11 @@ const TABS = [
   { key: 'Reports',    icon: '📈', label: 'Reports' },
 ];
 
-const fmt     = (n) => 'PKR ' + Number(n || 0).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const fmt = (n) => {
+  const num = Number(n || 0);
+  const formatted = Math.abs(num).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return num < 0 ? `-PKR ${formatted}` : `PKR ${formatted}`;
+};
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-PK') : '—';
 const today        = () => new Date().toISOString().split('T')[0];
 const firstOfMonth = () => { const d = new Date(); d.setDate(1); return d.toISOString().split('T')[0]; };
@@ -702,7 +706,7 @@ export default function WageModule() {
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontSize: 11, color: '#6c757d', fontWeight: 700 }}>REMAINING DUE</div>
                         <div style={{ fontSize: 20, fontWeight: 800, color: remaining > 0 ? BT.success : remaining < 0 ? BT.danger : '#6c757d' }}>
-                          {remaining < 0 ? `- ${fmt(Math.abs(remaining))}` : fmt(remaining)}
+                          {fmt(remaining)}
                         </div>
                       </div>
                     </div>

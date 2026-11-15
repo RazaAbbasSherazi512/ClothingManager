@@ -13,7 +13,11 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { calculateWorkerWagesFromEntries, getEffectiveNetAmount, getEffectivePaidDate } from '../utils/wageUtils';
 
-const fmt = (n) => 'PKR ' + Number(n || 0).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const fmt = (n) => {
+  const num = Number(n || 0);
+  const formatted = Math.abs(num).toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return num < 0 ? `-PKR ${formatted}` : `PKR ${formatted}`;
+};
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('en-PK') : '—');
 const today = () => new Date().toISOString().split('T')[0];
 const firstOfMonth = () => {
@@ -133,7 +137,7 @@ export default function WorkerPaymentModule() {
       const totalAlreadyPaid = payments
         .filter(p => p.workerId === wid)
         .reduce((s, p) => s + (Number(p.grossAmount) || 0), 0);
-      const remainingDue = Math.max(0, totalEarned - totalAlreadyPaid);
+      const remainingDue = totalEarned - totalAlreadyPaid;
       const pendingAdvance = adv?.pendingBalance || 0;
 
       setWorkerStats({
@@ -157,7 +161,7 @@ export default function WorkerPaymentModule() {
   const netToWorker = useMemo(() => {
     const gross = Number(payAmount) || 0;
     const ded = paymentType === 'wage' ? Number(payDeduction) || 0 : 0;
-    return Math.max(0, gross - ded);
+    return gross - ded;
   }, [payAmount, payDeduction, paymentType]);
 
   const openWhatsAppReceipt = (data) => {
@@ -410,7 +414,12 @@ export default function WorkerPaymentModule() {
                       </div>
                       <div>
                         <span style={styles.stripLabel}>Remaining Unpaid Wages: </span>
-                        <strong style={{ color: BT.success, fontSize: 14 }}>{fmt(workerStats.remainingDue)}</strong>
+                        <strong style={{
+                          color: workerStats.remainingDue < 0 ? BT.danger : workerStats.remainingDue > 0 ? BT.success : '#6c757d',
+                          fontSize: 14
+                        }}>
+                          {fmt(workerStats.remainingDue)}
+                        </strong>
                       </div>
                       <div>
                         <span style={styles.stripLabel}>Pending Advance: </span>
@@ -543,7 +552,7 @@ export default function WorkerPaymentModule() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 15, fontWeight: 700, color: isDark ? '#e2e8f0' : '#1e293b' }}>
                 Net to Worker:{' '}
-                <strong style={{ color: BT.success, fontSize: 19 }}>
+                <strong style={{ color: netToWorker < 0 ? BT.danger : BT.success, fontSize: 19 }}>
                   {fmt(netToWorker)}
                 </strong>
               </span>
