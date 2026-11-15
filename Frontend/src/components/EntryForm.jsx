@@ -308,14 +308,15 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
             }}
             style={{
               ...inputStyle,
-              background: '#fff',
+              background: isDark ? 'var(--bg-input)' : '#ffffff',
+              color: isDark ? '#f8fafc' : '#1e293b',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: 6,
               cursor: 'text',
-              borderColor: lotOpen ? '#2E75B6' : '#ccc',
-              boxShadow: lotOpen ? '0 0 0 2px rgba(46,117,182,0.18)' : 'none',
+              borderColor: lotOpen ? '#3b82f6' : (isDark ? 'var(--border-color)' : '#cbd5e1'),
+              boxShadow: lotOpen ? '0 0 0 2px rgba(59,130,246,0.25)' : 'none',
             }}
           >
             {lotOpen ? (
@@ -351,10 +352,19 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                   width: '100%',
                   padding: 0,
                   background: 'transparent',
+                  color: isDark ? '#f8fafc' : '#1e293b',
                 }}
               />
             ) : (
-              <span style={{ color: selectedLotObj ? '#1e293b' : '#64748b', fontWeight: selectedLotObj ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{
+                color: selectedLotObj
+                  ? (isDark ? '#f8fafc' : '#1e293b')
+                  : (isDark ? '#94a3b8' : '#64748b'),
+                fontWeight: selectedLotObj ? 600 : 400,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
                 {selectedLotObj ? displayLabel : '-- Select or Search Lot --'}
               </span>
             )}
@@ -368,12 +378,12 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                     setLotQuery('');
                   }}
                   title="Clear selected lot"
-                  style={{ fontSize: 11, color: '#94a3b8', cursor: 'pointer', padding: '0 2px', fontWeight: 700 }}
+                  style={{ fontSize: 11, color: isDark ? '#cbd5e1' : '#94a3b8', cursor: 'pointer', padding: '0 2px', fontWeight: 700 }}
                 >
                   ✕
                 </span>
               )}
-              <span style={{ fontSize: 10, color: '#64748b' }}>{lotOpen ? '▲' : '▼'}</span>
+              <span style={{ fontSize: 10, color: isDark ? '#94a3b8' : '#64748b' }}>{lotOpen ? '▲' : '▼'}</span>
             </div>
           </div>
 
@@ -387,15 +397,15 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                 minWidth: 220,
                 maxHeight: 230,
                 overflowY: 'auto',
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                borderRadius: 6,
-                boxShadow: '0 10px 25px rgba(0,0,0,0.14)',
+                background: isDark ? '#1e293b' : '#ffffff',
+                border: `1px solid ${isDark ? '#334155' : '#cbd5e1'}`,
+                borderRadius: 8,
+                boxShadow: isDark ? '0 12px 30px rgba(0,0,0,0.5)' : '0 10px 25px rgba(0,0,0,0.14)',
                 zIndex: 1000,
               }}
             >
               {searchedLots.length === 0 ? (
-                <div style={{ padding: '10px 12px', fontSize: 12.5, color: '#64748b', textAlign: 'center' }}>
+                <div style={{ padding: '10px 12px', fontSize: 12.5, color: isDark ? '#94a3b8' : '#64748b', textAlign: 'center' }}>
                   No matching lot found
                 </div>
               ) : (
@@ -414,18 +424,31 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        background: isSelected ? '#dbeafe' : isHighlighted ? '#f1f5f9' : '#ffffff',
-                        color: isSelected ? '#1d4ed8' : '#1e293b',
+                        background: isSelected
+                          ? (isDark ? 'rgba(59,130,246,0.25)' : '#dbeafe')
+                          : isHighlighted
+                            ? (isDark ? '#334155' : '#f1f5f9')
+                            : (isDark ? '#1e293b' : '#ffffff'),
+                        color: isSelected
+                          ? (isDark ? '#60a5fa' : '#1d4ed8')
+                          : (isDark ? '#f8fafc' : '#1e293b'),
                         fontWeight: isSelected ? 700 : 500,
-                        borderBottom: '1px solid #f8fafc',
+                        borderBottom: `1px solid ${isDark ? '#334155' : '#f8fafc'}`,
                       }}
                     >
                       <span>
                         <strong>{l.lotNumber}</strong>
-                        {l.material ? <span style={{ color: '#64748b', fontSize: 12 }}> — {l.material}</span> : ''}
+                        {l.material ? <span style={{ color: isDark ? '#94a3b8' : '#64748b', fontSize: 12 }}> — {l.material}</span> : ''}
                       </span>
                       {l.sizeName && (
-                        <span style={{ fontSize: 11, background: '#e2e8f0', color: '#475569', borderRadius: 4, padding: '1px 6px', fontWeight: 600 }}>
+                        <span style={{
+                          fontSize: 11,
+                          background: isDark ? '#0f172a' : '#e2e8f0',
+                          color: isDark ? '#cbd5e1' : '#475569',
+                          borderRadius: 4,
+                          padding: '1px 6px',
+                          fontWeight: 600,
+                        }}>
                           {l.sizeName}
                         </span>
                       )}
@@ -454,14 +477,15 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
             }}
             style={{
               ...inputStyle,
-              background: '#fff',
+              background: isDark ? 'var(--bg-input)' : '#ffffff',
+              color: isDark ? '#f8fafc' : '#1e293b',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: 6,
               cursor: 'text',
-              borderColor: colorOpen ? '#2E75B6' : '#ccc',
-              boxShadow: colorOpen ? '0 0 0 2px rgba(46,117,182,0.18)' : 'none',
+              borderColor: colorOpen ? '#3b82f6' : (isDark ? 'var(--border-color)' : '#cbd5e1'),
+              boxShadow: colorOpen ? '0 0 0 2px rgba(59,130,246,0.25)' : 'none',
             }}
           >
             {colorOpen ? (
@@ -497,10 +521,19 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                   width: '100%',
                   padding: 0,
                   background: 'transparent',
+                  color: isDark ? '#f8fafc' : '#1e293b',
                 }}
               />
             ) : (
-              <span style={{ color: selectedColorObj ? '#1e293b' : '#64748b', fontWeight: selectedColorObj ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{
+                color: selectedColorObj
+                  ? (isDark ? '#f8fafc' : '#1e293b')
+                  : (isDark ? '#94a3b8' : '#64748b'),
+                fontWeight: selectedColorObj ? 600 : 400,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
                 {selectedColorObj ? displayColor : '-- Select or Search Color --'}
               </span>
             )}
@@ -514,12 +547,12 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                     setColorQuery('');
                   }}
                   title="Clear selected color"
-                  style={{ fontSize: 11, color: '#94a3b8', cursor: 'pointer', padding: '0 2px', fontWeight: 700 }}
+                  style={{ fontSize: 11, color: isDark ? '#cbd5e1' : '#94a3b8', cursor: 'pointer', padding: '0 2px', fontWeight: 700 }}
                 >
                   ✕
                 </span>
               )}
-              <span style={{ fontSize: 10, color: '#64748b' }}>{colorOpen ? '▲' : '▼'}</span>
+              <span style={{ fontSize: 10, color: isDark ? '#94a3b8' : '#64748b' }}>{colorOpen ? '▲' : '▼'}</span>
             </div>
           </div>
 
@@ -533,15 +566,15 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                 minWidth: 190,
                 maxHeight: 230,
                 overflowY: 'auto',
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                borderRadius: 6,
-                boxShadow: '0 10px 25px rgba(0,0,0,0.14)',
+                background: isDark ? '#1e293b' : '#ffffff',
+                border: `1px solid ${isDark ? '#334155' : '#cbd5e1'}`,
+                borderRadius: 8,
+                boxShadow: isDark ? '0 12px 30px rgba(0,0,0,0.5)' : '0 10px 25px rgba(0,0,0,0.14)',
                 zIndex: 1000,
               }}
             >
               {searchedColors.length === 0 ? (
-                <div style={{ padding: '10px 12px', fontSize: 12.5, color: '#64748b', textAlign: 'center' }}>
+                <div style={{ padding: '10px 12px', fontSize: 12.5, color: isDark ? '#94a3b8' : '#64748b', textAlign: 'center' }}>
                   No matching color found
                 </div>
               ) : (
@@ -560,14 +593,20 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        background: isSelected ? '#dbeafe' : isHighlighted ? '#f1f5f9' : '#ffffff',
-                        color: isSelected ? '#1d4ed8' : '#1e293b',
+                        background: isSelected
+                          ? (isDark ? 'rgba(59,130,246,0.25)' : '#dbeafe')
+                          : isHighlighted
+                            ? (isDark ? '#334155' : '#f1f5f9')
+                            : (isDark ? '#1e293b' : '#ffffff'),
+                        color: isSelected
+                          ? (isDark ? '#60a5fa' : '#1d4ed8')
+                          : (isDark ? '#f8fafc' : '#1e293b'),
                         fontWeight: isSelected ? 700 : 500,
-                        borderBottom: '1px solid #f8fafc',
+                        borderBottom: `1px solid ${isDark ? '#334155' : '#f8fafc'}`,
                       }}
                     >
                       <span>{c.name}</span>
-                      {isSelected && <span style={{ fontSize: 11, color: '#1d4ed8', fontWeight: 800 }}>✓</span>}
+                      {isSelected && <span style={{ fontSize: 11, color: isDark ? '#60a5fa' : '#1d4ed8', fontWeight: 800 }}>✓</span>}
                     </div>
                   );
                 })
@@ -597,21 +636,24 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
             }}
             style={{
               ...inputStyle,
-              background: '#fff',
+              background: isDark ? 'var(--bg-input)' : '#ffffff',
+              color: isDark ? '#f8fafc' : '#1e293b',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: 8,
               cursor: 'pointer',
               userSelect: 'none',
-              borderColor: calOpen ? '#2563eb' : '#ccc',
-              boxShadow: calOpen ? '0 0 0 2px rgba(37,99,235,0.18)' : 'none',
+              borderColor: calOpen ? '#3b82f6' : (isDark ? 'var(--border-color)' : '#cbd5e1'),
+              boxShadow: calOpen ? '0 0 0 2px rgba(59,130,246,0.25)' : 'none',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, overflow: 'hidden' }}>
               <span style={{ fontSize: 14, lineHeight: 1 }}>📅</span>
               <span style={{
-                color: cleanSelected ? '#1e293b' : '#64748b',
+                color: cleanSelected
+                  ? (isDark ? '#f8fafc' : '#1e293b')
+                  : (isDark ? '#94a3b8' : '#64748b'),
                 fontWeight: cleanSelected ? 600 : 400,
                 fontSize: 13,
                 whiteSpace: 'nowrap',
@@ -628,12 +670,12 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                     setValue('dateCompleted', '');
                   }}
                   title="Clear date"
-                  style={{ fontSize: 11, color: '#94a3b8', cursor: 'pointer', padding: '0 2px', fontWeight: 700 }}
+                  style={{ fontSize: 11, color: isDark ? '#cbd5e1' : '#94a3b8', cursor: 'pointer', padding: '0 2px', fontWeight: 700 }}
                 >
                   ✕
                 </span>
               )}
-              <span style={{ fontSize: 10, color: '#64748b' }}>{calOpen ? '▲' : '▼'}</span>
+              <span style={{ fontSize: 10, color: isDark ? '#94a3b8' : '#64748b' }}>{calOpen ? '▲' : '▼'}</span>
             </div>
           </div>
 
@@ -645,10 +687,10 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                 top: 'calc(100% + 6px)',
                 left: 0,
                 width: 284,
-                background: '#ffffff',
+                background: isDark ? '#1e293b' : '#ffffff',
                 borderRadius: 14,
-                boxShadow: '0 16px 40px rgba(15, 23, 42, 0.22)',
-                border: '1px solid #e2e8f0',
+                boxShadow: isDark ? '0 16px 40px rgba(0, 0, 0, 0.55)' : '0 16px 40px rgba(15, 23, 42, 0.22)',
+                border: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`,
                 overflow: 'hidden',
                 zIndex: 1200,
                 fontFamily: 'Segoe UI, Inter, Arial, sans-serif',
@@ -678,8 +720,8 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '10px 12px 6px',
-                  background: '#f8fafc',
-                  borderBottom: '1px solid #f1f5f9',
+                  background: isDark ? '#0f172a' : '#f8fafc',
+                  borderBottom: `1px solid ${isDark ? '#334155' : '#f1f5f9'}`,
                 }}
               >
                 <button
@@ -688,7 +730,7 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                     const d = new Date(v.year, v.month - 1, 1);
                     return { year: d.getFullYear(), month: d.getMonth() };
                   })}
-                  style={calNavBtnStyle}
+                  style={calNavBtnStyle(isDark)}
                   title="Previous Month"
                 >
                   ‹
@@ -698,7 +740,7 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                   <select
                     value={calView.month}
                     onChange={e => setCalView(v => ({ ...v, month: Number(e.target.value) }))}
-                    style={calSelectStyle}
+                    style={calSelectStyle(isDark)}
                   >
                     {MONTH_NAMES.map((m, idx) => (
                       <option key={m} value={idx}>{m.slice(0, 3)}</option>
@@ -707,7 +749,7 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                   <select
                     value={calView.year}
                     onChange={e => setCalView(v => ({ ...v, year: Number(e.target.value) }))}
-                    style={calSelectStyle}
+                    style={calSelectStyle(isDark)}
                   >
                     {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map(yr => (
                       <option key={yr} value={yr}>{yr}</option>
@@ -721,7 +763,7 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                     const d = new Date(v.year, v.month + 1, 1);
                     return { year: d.getFullYear(), month: d.getMonth() };
                   })}
-                  style={calNavBtnStyle}
+                  style={calNavBtnStyle(isDark)}
                   title="Next Month"
                 >
                   ›
@@ -738,7 +780,7 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                         textAlign: 'center',
                         fontSize: 11,
                         fontWeight: 800,
-                        color: dn === 'Su' ? '#ef4444' : '#64748b',
+                        color: dn === 'Su' ? '#ef4444' : (isDark ? '#94a3b8' : '#64748b'),
                         padding: '4px 0',
                       }}
                     >
@@ -759,19 +801,19 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                         style={{
                           height: 32,
                           borderRadius: 8,
-                          border: isToday && !isSelected ? '1.5px solid #2563eb' : 'none',
+                          border: isToday && !isSelected ? '1.5px solid #3b82f6' : 'none',
                           background: isSelected
                             ? 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)'
                             : isToday
-                            ? '#eff6ff'
+                            ? (isDark ? 'rgba(59,130,246,0.2)' : '#eff6ff')
                             : 'transparent',
                           color: isSelected
                             ? '#ffffff'
                             : !cell.currentMonth
-                            ? '#cbd5e1'
+                            ? (isDark ? '#475569' : '#cbd5e1')
                             : isToday
-                            ? '#1d4ed8'
-                            : '#1e293b',
+                            ? (isDark ? '#60a5fa' : '#1d4ed8')
+                            : (isDark ? '#f8fafc' : '#1e293b'),
                           fontWeight: isSelected || isToday ? 800 : 600,
                           fontSize: 12.5,
                           cursor: 'pointer',
@@ -779,10 +821,10 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                           transition: 'all 0.12s ease',
                         }}
                         onMouseEnter={e => {
-                          if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
+                          if (!isSelected) e.currentTarget.style.background = isDark ? '#334155' : '#f1f5f9';
                         }}
                         onMouseLeave={e => {
-                          if (!isSelected) e.currentTarget.style.background = isToday ? '#eff6ff' : 'transparent';
+                          if (!isSelected) e.currentTarget.style.background = isToday ? (isDark ? 'rgba(59,130,246,0.2)' : '#eff6ff') : 'transparent';
                         }}
                       >
                         {cell.day}
@@ -799,8 +841,8 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '8px 12px',
-                  background: '#f8fafc',
-                  borderTop: '1px solid #e2e8f0',
+                  background: isDark ? '#0f172a' : '#f8fafc',
+                  borderTop: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`,
                   gap: 6,
                 }}
               >
@@ -809,9 +851,9 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                     type="button"
                     onClick={() => handleSelectDate(todayYMD)}
                     style={{
-                      background: '#eff6ff',
-                      color: '#1d4ed8',
-                      border: '1px solid #bfdbfe',
+                      background: isDark ? 'rgba(59,130,246,0.2)' : '#eff6ff',
+                      color: isDark ? '#60a5fa' : '#1d4ed8',
+                      border: `1px solid ${isDark ? '#1e40af' : '#bfdbfe'}`,
                       borderRadius: 6,
                       padding: '4px 10px',
                       fontSize: 11.5,
@@ -829,9 +871,9 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                       handleSelectDate(toYMD(yest));
                     }}
                     style={{
-                      background: '#ffffff',
-                      color: '#475569',
-                      border: '1px solid #cbd5e1',
+                      background: isDark ? '#1e293b' : '#ffffff',
+                      color: isDark ? '#e2e8f0' : '#475569',
+                      border: `1px solid ${isDark ? '#334155' : '#cbd5e1'}`,
                       borderRadius: 6,
                       padding: '4px 10px',
                       fontSize: 11.5,
@@ -851,7 +893,7 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                   }}
                   style={{
                     background: 'transparent',
-                    color: '#dc2626',
+                    color: isDark ? '#f87171' : '#dc2626',
                     border: 'none',
                     fontSize: 11.5,
                     fontWeight: 700,
@@ -899,7 +941,7 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
           {...register('completed')}
           style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#16a34a', margin: 0 }}
         />
-        <span style={{ fontSize: 13, fontWeight: 600, color: watchedCompleted ? '#16a34a' : (isDark ? 'var(--text-main)' : '#475569') }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: watchedCompleted ? (isDark ? '#4ade80' : '#16a34a') : (isDark ? 'var(--text-main)' : '#475569') }}>
           {watchedCompleted ? 'Completed' : 'Mark as Completed'}
         </span>
       </label>
@@ -998,7 +1040,7 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
                           style={{
                             fontSize: 11,
                             fontWeight: 700,
-                            color: '#15803d',
+                            color: isDark ? '#4ade80' : '#15803d',
                             background: isDark ? 'rgba(22, 163, 74, 0.2)' : '#dcfce7',
                             padding: '1px 6px',
                             borderRadius: 4,
@@ -1128,13 +1170,13 @@ const saveBtnStyle = (primaryColor) => ({
   cursor: 'pointer',
   boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
 });
-const calNavBtnStyle = {
+const calNavBtnStyle = (isDark) => ({
   width: 28,
   height: 28,
   borderRadius: 7,
-  border: '1px solid #cbd5e1',
-  background: '#ffffff',
-  color: '#1e293b',
+  border: `1px solid ${isDark ? '#334155' : '#cbd5e1'}`,
+  background: isDark ? '#1e293b' : '#ffffff',
+  color: isDark ? '#f8fafc' : '#1e293b',
   fontSize: 16,
   fontWeight: 700,
   cursor: 'pointer',
@@ -1142,15 +1184,15 @@ const calNavBtnStyle = {
   alignItems: 'center',
   justifyContent: 'center',
   lineHeight: 1,
-};
-const calSelectStyle = {
-  border: '1px solid #cbd5e1',
+});
+const calSelectStyle = (isDark) => ({
+  border: `1px solid ${isDark ? '#334155' : '#cbd5e1'}`,
   borderRadius: 6,
   padding: '3px 6px',
   fontSize: 12.5,
   fontWeight: 700,
-  color: '#1e293b',
-  background: '#ffffff',
+  color: isDark ? '#f8fafc' : '#1e293b',
+  background: isDark ? '#1e293b' : '#ffffff',
   cursor: 'pointer',
   outline: 'none',
-};
+});

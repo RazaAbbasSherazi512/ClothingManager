@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import api, { getLots, updateLotStatus } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import LotHistoryModal from '../components/LotHistoryModal';
 
@@ -71,7 +72,9 @@ const BT = {
 };
 
 export default function LotStatus() {
+  const { can } = useAuth();
   const { isDark } = useTheme();
+  const canEdit = can('canEditLabour');
 
   const [lots, setLots]         = useState([]);
   const [statuses, setStatuses] = useState(DEFAULT_STATUSES);
@@ -244,7 +247,7 @@ export default function LotStatus() {
               <table style={styles.table}>
                 <thead>
                   <tr>
-                    {['Lot Number', 'Size Specification', 'Fabric Material', 'Current Production Stage', 'Advance To Stage'].map(h => (
+                    {['Lot Number', 'Size Specification', 'Fabric Material', 'Current Production Stage', ...(canEdit ? ['Advance To Stage'] : [])].map(h => (
                       <th key={h} style={styles.th(isDark)}>{h}</th>
                     ))}
                   </tr>
@@ -284,25 +287,27 @@ export default function LotStatus() {
                             {lot.status}
                           </span>
                         </td>
-                        <td style={styles.td(isDark)}>
-                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                            {statuses.filter(st => st !== lot.status).map((st, idx) => {
-                              const bs = getStageStyle(st, idx);
-                              return (
-                                <button
-                                  key={st}
-                                  disabled={isUpdating}
-                                  onClick={() => changeStatus(lot, st)}
-                                  style={styles.moveBtn(bs, isUpdating)}
-                                  title={`Move lot ${lot.lotNumber} to ${st}`}
-                                >
-                                  <span>{bs.icon}</span>
-                                  <span>{st}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </td>
+                        {canEdit && (
+                          <td style={styles.td(isDark)}>
+                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                              {statuses.filter(st => st !== lot.status).map((st, idx) => {
+                                const bs = getStageStyle(st, idx);
+                                return (
+                                  <button
+                                    key={st}
+                                    disabled={isUpdating}
+                                    onClick={() => changeStatus(lot, st)}
+                                    style={styles.moveBtn(bs, isUpdating)}
+                                    title={`Move lot ${lot.lotNumber} to ${st}`}
+                                  >
+                                    <span>{bs.icon}</span>
+                                    <span>{st}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     );
                   })}

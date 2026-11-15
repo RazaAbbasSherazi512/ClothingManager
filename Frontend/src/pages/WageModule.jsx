@@ -8,6 +8,7 @@ import {
   getAdvances, createAdvance, settleAdvance, deleteAdvance, getAdvanceBalance,
   syncPayrollToFinance, cleanupFinanceDuplicates,
 } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { calculateWorkerWagesFromEntries, getEffectiveNetAmount, getEffectivePaidDate } from '../utils/wageUtils';
 
@@ -71,7 +72,10 @@ function generateWhatsAppMessage({ workerName, netAmount, grossAmount, deduction
 }
 
 export default function WageModule() {
+  const { can } = useAuth();
   const { isDark, currentColor } = useTheme();
+  const canRecordPayment = can('canRecordPayment');
+  const canManageWages = can('canManageWages');
 
   const [tab, setTab]         = useState('Overview');
   const [workers, setWorkers] = useState([]);
@@ -481,7 +485,8 @@ export default function WageModule() {
               />
             </div>
 
-            {/* Finance Integration Card */}
+            {/* Finance Integration Card (Admin Only) */}
+            {canManageWages && (
             <div style={styles.financeCard(isDark)}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={styles.financeIcon}>🔄</div>
@@ -537,6 +542,7 @@ export default function WageModule() {
                 </button>
               </div>
             </div>
+            )}
 
             {/* Recent Payments Table */}
             <div style={styles.cardBox(isDark)}>
@@ -759,6 +765,7 @@ export default function WageModule() {
                   )}
 
                   {/* Payment Action Bar */}
+                  {canRecordPayment && (
                   <div style={{ padding: '16px 20px', borderTop: `1px solid ${isDark ? 'var(--border-color)' : '#dee2e6'}` }}>
                     {!showPayForm ? (
                       <button
@@ -826,6 +833,7 @@ export default function WageModule() {
                       </div>
                     )}
                   </div>
+                  )}
                 </div>
               );
             })()}
@@ -894,6 +902,7 @@ export default function WageModule() {
         {/* ── 4. ADVANCES TAB ─────────────────────────────────────────── */}
         {tab === 'Advances' && (
           <div>
+            {canRecordPayment && (
             <div style={styles.cardBox(isDark)}>
               <div style={styles.cardHeader(isDark)}>
                 <span style={{ fontWeight: 800, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
@@ -958,6 +967,7 @@ export default function WageModule() {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Filter toolbar */}
             <div style={styles.filterToolbar(isDark)}>
@@ -1012,9 +1022,9 @@ export default function WageModule() {
                             </span>
                           </td>
                           <td style={styles.td(isDark)}>
-                            {deleteConfirm === `adv-${a.id}` ? (
+                            {deleteConfirm === `adv-${a.id}` && canManageWages ? (
                               <div style={{ display: 'flex', gap: 6 }}>
-                                {!a.isSettled && (
+                                {!a.isSettled && canRecordPayment && (
                                   <button style={styles.btnSuccessSm} onClick={() => handleSettleAdvance(a.id)}>Confirm Settle</button>
                                 )}
                                 <button style={styles.btnDangerSm} onClick={() => handleDeleteAdvance(a.id)}>Delete</button>
@@ -1039,10 +1049,12 @@ export default function WageModule() {
                                 >
                                   📲 WhatsApp
                                 </button>
-                                {!a.isSettled && (
+                                {!a.isSettled && canRecordPayment && (
                                   <button style={styles.btnSuccessSm} onClick={() => handleSettleAdvance(a.id)}>Settle</button>
                                 )}
-                                <button style={styles.iconBtn} onClick={() => setDeleteConfirm(`adv-${a.id}`)}>🗑️</button>
+                                {canManageWages && (
+                                  <button style={styles.iconBtn} onClick={() => setDeleteConfirm(`adv-${a.id}`)}>🗑️</button>
+                                )}
                               </div>
                             )}
                           </td>

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ClothingManager.Authorization;
 using ClothingManager.Data;
 using ClothingManager.DTOs;
 using ClothingManager.Models;
@@ -69,6 +70,7 @@ public class PurchasesController : ControllerBase
     }
 
     [HttpPost]
+    [RequirePermission("canAddSettings")]
     public async Task<IActionResult> Create([FromBody] BagPurchaseCreateDto dto)
     {
         var p = new BagPurchase
@@ -97,6 +99,7 @@ public class PurchasesController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [RequirePermission("canEditSettings")]
     public async Task<IActionResult> Update(int id, [FromBody] BagPurchaseCreateDto dto)
     {
         var p = await _db.BagPurchases.Include(x => x.Supplier).FirstOrDefaultAsync(x => x.Id == id);
@@ -123,6 +126,7 @@ public class PurchasesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [RequirePermission("canDeleteSettings")]
     public async Task<IActionResult> Delete(int id)
     {
         var p = await _db.BagPurchases.FindAsync(id);

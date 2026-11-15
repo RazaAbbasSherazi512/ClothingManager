@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ClothingManager.Authorization;
 using ClothingManager.Data;
 using ClothingManager.DTOs;
 using ClothingManager.Models;
@@ -70,6 +71,7 @@ public class SalesController : ControllerBase
 
     // ── Create ────────────────────────────────────────────────────────────────
     [HttpPost]
+    [RequirePermission("canAddSettings")]
     public async Task<IActionResult> Create([FromBody] SaleCreateDto dto)
     {
         if (!await _db.Lots.AnyAsync(l => l.Id == dto.LotId))
@@ -114,6 +116,7 @@ public class SalesController : ControllerBase
 
     // ── Update ────────────────────────────────────────────────────────────────
     [HttpPut("{id}")]
+    [RequirePermission("canEditSettings")]
     public async Task<IActionResult> Update(int id, [FromBody] SaleCreateDto dto)
     {
         var sale = await _db.Sales.Include(s => s.Payments).FirstOrDefaultAsync(s => s.Id == id);
@@ -149,6 +152,7 @@ public class SalesController : ControllerBase
 
     // ── Delete ────────────────────────────────────────────────────────────────
     [HttpDelete("{id}")]
+    [RequirePermission("canDeleteSettings")]
     public async Task<IActionResult> Delete(int id)
     {
         var sale = await _db.Sales.Include(s => s.Payments)
@@ -168,6 +172,7 @@ public class SalesController : ControllerBase
 
     // ── Add Payment ───────────────────────────────────────────────────────────
     [HttpPost("{saleId}/payments")]
+    [RequirePermission("canEditSettings")]
     public async Task<IActionResult> AddPayment(int saleId, [FromBody] SalePaymentCreateDto dto)
     {
         var sale = await _db.Sales.Include(s => s.Payments).FirstOrDefaultAsync(s => s.Id == saleId);
@@ -219,6 +224,7 @@ public class SalesController : ControllerBase
 
     // ── Delete Payment ────────────────────────────────────────────────────────
     [HttpDelete("payments/{id}")]
+    [RequirePermission("canDeleteSettings")]
     public async Task<IActionResult> DeletePayment(int id)
     {
         var payment = await _db.SalePayments.FindAsync(id);

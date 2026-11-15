@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   getCustomers, createCustomer, updateCustomer, toggleCustomerStatus, deleteCustomer,
 } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 const fmtDate = d => d ? new Date(d).toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
@@ -19,7 +20,11 @@ const BT = {
 };
 
 export default function CustomerModule() {
+  const { can } = useAuth();
   const { isDark } = useTheme();
+  const canAdd    = can('canAddSettings');
+  const canEdit   = can('canEditSettings');
+  const canDelete = can('canDeleteSettings');
 
   const [customers, setCustomers]   = useState([]);
   const [loading,   setLoading]     = useState(true);
@@ -161,9 +166,11 @@ export default function CustomerModule() {
           <span style={styles.headerSubBadge(isDark)}>
             {customers.length} Accounts Registered
           </span>
-          <button onClick={openAdd} style={styles.addBtn}>
-            <span>+</span> Add New Customer
-          </button>
+          {canAdd && (
+            <button onClick={openAdd} style={styles.addBtn}>
+              <span>+</span> Add New Customer
+            </button>
+          )}
         </div>
       </div>
 
@@ -270,6 +277,8 @@ export default function CustomerModule() {
                 onEdit={openEdit}
                 onToggle={handleToggle}
                 onDelete={setDelTarget}
+                canEdit={canEdit}
+                canDelete={canDelete}
                 isDark={isDark}
               />
             ) : (
@@ -278,6 +287,8 @@ export default function CustomerModule() {
                 onEdit={openEdit}
                 onToggle={handleToggle}
                 onDelete={setDelTarget}
+                canEdit={canEdit}
+                canDelete={canDelete}
                 isDark={isDark}
               />
             )}
@@ -417,7 +428,7 @@ function BtKpiCard({ label, tag, value, gradient, glow, icon, sub, onClick }) {
 }
 
 // ── Card View ──
-function CardView({ customers, onEdit, onToggle, onDelete, isDark }) {
+function CardView({ customers, onEdit, onToggle, onDelete, canEdit, canDelete, isDark }) {
   return (
     <div style={styles.grid}>
       {customers.map(c => (
@@ -455,20 +466,28 @@ function CardView({ customers, onEdit, onToggle, onDelete, isDark }) {
             Member since {fmtDate(c.createdAt)}
           </div>
 
-          <div style={styles.cardActions}>
-            <button onClick={() => onEdit(c)} style={styles.btnEditSm}>
-              ✏️ Edit
-            </button>
-            <button
-              onClick={() => onToggle(c)}
-              style={c.isActive ? styles.btnWarnSm : styles.btnSuccessSm}
-            >
-              {c.isActive ? '⏸️ Deactivate' : '▶️ Activate'}
-            </button>
-            <button onClick={() => onDelete(c)} style={styles.btnDelSm}>
-              🗑️ Delete
-            </button>
-          </div>
+          {(canEdit || canDelete) && (
+            <div style={styles.cardActions}>
+              {canEdit && (
+                <>
+                  <button onClick={() => onEdit(c)} style={styles.btnEditSm}>
+                    ✏️ Edit
+                  </button>
+                  <button
+                    onClick={() => onToggle(c)}
+                    style={c.isActive ? styles.btnWarnSm : styles.btnSuccessSm}
+                  >
+                    {c.isActive ? '⏸️ Deactivate' : '▶️ Activate'}
+                  </button>
+                </>
+              )}
+              {canDelete && (
+                <button onClick={() => onDelete(c)} style={styles.btnDelSm}>
+                  🗑️ Delete
+                </button>
+              )}
+            </div>
+          )}
         </div>
       ))}
     </div>
@@ -476,14 +495,18 @@ function CardView({ customers, onEdit, onToggle, onDelete, isDark }) {
 }
 
 // ── Table View ──
-function TableView({ customers, onEdit, onToggle, onDelete, isDark }) {
+function TableView({ customers, onEdit, onToggle, onDelete, canEdit, canDelete, isDark }) {
+  const showActions = canEdit || canDelete;
+  const headers = ['Customer Name', 'Phone', 'Address', 'Remarks / Notes', 'Account Status', 'Member Since'];
+  if (showActions) headers.push('Actions');
+
   return (
     <div style={styles.cardBox(isDark)}>
       <div style={{ overflowX: 'auto' }}>
         <table style={styles.table}>
           <thead>
             <tr>
-              {['Customer Name', 'Phone', 'Address', 'Remarks / Notes', 'Account Status', 'Member Since', 'Actions'].map(h => (
+              {headers.map(h => (
                 <th key={h} style={styles.th(isDark)}>{h}</th>
               ))}
             </tr>
@@ -510,18 +533,26 @@ function TableView({ customers, onEdit, onToggle, onDelete, isDark }) {
                   </span>
                 </td>
                 <td style={styles.td(isDark)}>{fmtDate(c.createdAt)}</td>
-                <td style={styles.td(isDark)}>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => onEdit(c)} style={styles.btnEditSm}>Edit</button>
-                    <button
-                      onClick={() => onToggle(c)}
-                      style={c.isActive ? styles.btnWarnSm : styles.btnSuccessSm}
-                    >
-                      {c.isActive ? 'Deactivate' : 'Activate'}
-                    </button>
-                    <button onClick={() => onDelete(c)} style={styles.btnDelSm}>Del</button>
-                  </div>
-                </td>
+                {showActions && (
+                  <td style={styles.td(isDark)}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {canEdit && (
+                        <>
+                          <button onClick={() => onEdit(c)} style={styles.btnEditSm}>Edit</button>
+                          <button
+                            onClick={() => onToggle(c)}
+                            style={c.isActive ? styles.btnWarnSm : styles.btnSuccessSm}
+                          >
+                            {c.isActive ? 'Deactivate' : 'Activate'}
+                          </button>
+                        </>
+                      )}
+                      {canDelete && (
+                        <button onClick={() => onDelete(c)} style={styles.btnDelSm}>Del</button>
+                      )}
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

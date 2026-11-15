@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ClothingManager.Authorization;
 using ClothingManager.Data;
 using ClothingManager.DTOs;
 using ClothingManager.Models;
@@ -121,6 +122,7 @@ public class InventoryController : ControllerBase
 
     // ── Create ────────────────────────────────────────────────────────────────
     [HttpPost("usages")]
+    [RequirePermission("canAddSettings")]
     public async Task<IActionResult> Create([FromBody] InventoryUsageCreateDto dto)
     {
         var bag = await _db.BagPurchases.FindAsync(dto.BagPurchaseId);
@@ -154,6 +156,7 @@ public class InventoryController : ControllerBase
 
     // ── Update ────────────────────────────────────────────────────────────────
     [HttpPut("usages/{id}")]
+    [RequirePermission("canEditSettings")]
     public async Task<IActionResult> Update(int id, [FromBody] InventoryUsageCreateDto dto)
     {
         var usage = await _db.InventoryUsages.FindAsync(id);
@@ -180,6 +183,7 @@ public class InventoryController : ControllerBase
 
     // ── Delete ────────────────────────────────────────────────────────────────
     [HttpDelete("usages/{id}")]
+    [RequirePermission("canDeleteSettings")]
     public async Task<IActionResult> Delete(int id)
     {
         var usage = await _db.InventoryUsages.FindAsync(id);

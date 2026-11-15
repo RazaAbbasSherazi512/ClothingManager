@@ -4,6 +4,7 @@ import EntryForm from './EntryForm';
 import LotHistoryModal from './LotHistoryModal';
 import AiSlipScannerModal from './AiSlipScannerModal';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { calculateEntryTotalPrice, getEntryDisplayRate, getEntryRateBreakdown, buildAssignedTaskColumns } from '../utils/wageUtils';
 
 export default function WorkerTable({
@@ -21,6 +22,10 @@ export default function WorkerTable({
   primaryTaskType: externalPrimaryTaskType,
 }) {
   const { isDark } = useTheme();
+  const { can } = useAuth();
+  const canAdd = can('canAddEntry');
+  const canEdit = can('canEditEntry');
+  const canDelete = can('canDeleteEntry');
   const [editing, setEditing]       = useState(null);
   const [showForm, setShowForm]     = useState(false);
   const [showScanModal, setShowScanModal] = useState(false);
@@ -304,36 +309,38 @@ export default function WorkerTable({
             Showing {sortedLots.length === 0 ? 0 : (lotPage - 1) * lotPageSize + 1}–{Math.min(lotPage * lotPageSize, sortedLots.length)} of {sortedLots.length}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button
-            type="button"
-            onClick={() => setShowScanModal(true)}
-            style={{
-              padding: '7px 14px',
-              borderRadius: 8,
-              border: 'none',
-              background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #0284c7 100%)',
-              color: '#ffffff',
-              fontWeight: 700,
-              fontSize: 13,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              boxShadow: '0 2px 8px rgba(37,99,235,0.25)',
-            }}
-            title="Scan paper slip using Gemini Vision AI"
-          >
-            <span>📷</span> Scan Slip (AI)
-          </button>
-          <button onClick={() => { setEditing(null); setShowForm(true); }} style={styles.addBtn}>
-            + Add Entry
-          </button>
-        </div>
+        {canAdd && (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              type="button"
+              onClick={() => setShowScanModal(true)}
+              style={{
+                padding: '7px 14px',
+                borderRadius: 8,
+                border: 'none',
+                background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #0284c7 100%)',
+                color: '#ffffff',
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                boxShadow: '0 2px 8px rgba(37,99,235,0.25)',
+              }}
+              title="Scan paper slip using Gemini Vision AI"
+            >
+              <span>📷</span> Scan Slip (AI)
+            </button>
+            <button onClick={() => { setEditing(null); setShowForm(true); }} style={styles.addBtn}>
+              + Add Entry
+            </button>
+          </div>
+        )}
       </div>
 
       {/* AI Slip Scanner Modal */}
-      {showScanModal && (
+      {canAdd && showScanModal && (
         <AiSlipScannerModal
           isOpen={showScanModal}
           onClose={() => setShowScanModal(false)}
@@ -347,7 +354,7 @@ export default function WorkerTable({
       )}
 
       {/* Add / Edit Form */}
-      {showForm && (
+      {(canAdd || canEdit) && showForm && (
         <EntryForm
           workerId={workerId}
           columns={effectiveColumns}
@@ -396,13 +403,13 @@ export default function WorkerTable({
                 );
               })}
               <th style={styles.th}>Picture</th>
-              <th style={styles.th}>Actions</th>
+              {(canEdit || canDelete) && <th style={styles.th}>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {sortedLots.length === 0 ? (
               <tr>
-                <td colSpan={effectiveColumns.length + 3} style={styles.empty}>
+                <td colSpan={effectiveColumns.length + (canEdit || canDelete ? 3 : 2)} style={styles.empty}>
                   {lotSearch ? `No lots matching "${lotSearch}"` : 'No entries yet'}
                 </td>
               </tr>
@@ -418,7 +425,7 @@ export default function WorkerTable({
                     <td style={styles.chevronCell}>
                       <span style={{ ...styles.chevron, transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>▶</span>
                     </td>
-                    <td colSpan={effectiveColumns.length + 2} style={styles.lotCell}>
+                    <td colSpan={effectiveColumns.length + (canEdit || canDelete ? 2 : 1)} style={styles.lotCell}>
                       <div style={styles.lotHeader}>
                         <div style={styles.lotInfo}>
                           <span
@@ -626,25 +633,27 @@ export default function WorkerTable({
                                         )}
                                       </>
                                     )}
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setEditingRateRowId(row.id);
-                                        setRateInputVal(String(dispRate || ''));
-                                      }}
-                                      title="Edit rate for this row (clear to 0 to revert to assigned task rate)"
-                                      style={{
-                                        background: 'none',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        fontSize: 11,
-                                        opacity: 0.5,
-                                        padding: '0 2px',
-                                      }}
-                                    >
-                                      ✏️
-                                    </button>
+                                    {canEdit && (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setEditingRateRowId(row.id);
+                                          setRateInputVal(String(dispRate || ''));
+                                        }}
+                                        title="Edit rate for this row (clear to 0 to revert to assigned task rate)"
+                                        style={{
+                                          background: 'none',
+                                          border: 'none',
+                                          cursor: 'pointer',
+                                          fontSize: 11,
+                                          opacity: 0.5,
+                                          padding: '0 2px',
+                                        }}
+                                      >
+                                        ✏️
+                                      </button>
+                                    )}
                                   </div>
                                 );
                               })()
@@ -669,12 +678,18 @@ export default function WorkerTable({
                           : <span style={{ color: '#ccc', fontSize: 12 }}>—</span>
                         }
                       </td>
-                      <td style={styles.td}>
-                        <div style={{ display: 'flex', gap: 4 }}>
-                          <button onClick={() => { setEditing(row); setShowForm(true); }} style={styles.editBtn}>Edit</button>
-                          <button onClick={() => handleDelete(row.id)} style={styles.delBtn}>Del</button>
-                        </div>
-                      </td>
+                      {(canEdit || canDelete) && (
+                        <td style={styles.td}>
+                          <div style={{ display: 'flex', gap: 4 }}>
+                            {canEdit && (
+                              <button onClick={() => { setEditing(row); setShowForm(true); }} style={styles.editBtn}>Edit</button>
+                            )}
+                            {canDelete && (
+                              <button onClick={() => handleDelete(row.id)} style={styles.delBtn}>Del</button>
+                            )}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))
                 ];

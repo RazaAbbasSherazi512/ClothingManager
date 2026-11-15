@@ -41,6 +41,9 @@ const BT = {
 export default function SaleModule() {
   const { can } = useAuth();
   const { isDark, currentColor } = useTheme();
+  const canAdd    = can('canAddSettings');
+  const canEdit   = can('canEditSettings');
+  const canDelete = can('canDeleteSettings');
 
   const [sales,       setSales]       = useState([]);
   const [customers,   setCustomers]   = useState([]);
@@ -301,9 +304,11 @@ export default function SaleModule() {
           <span style={styles.headerSubBadge(isDark)}>
             {sales.length} Total Orders
           </span>
-          <button onClick={openAddSale} style={styles.addBtn}>
-            <span>+</span> New Sale Order
-          </button>
+          {canAdd && (
+            <button onClick={openAddSale} style={styles.addBtn}>
+              <span>+</span> New Sale Order
+            </button>
+          )}
         </div>
       </div>
 
@@ -580,9 +585,15 @@ export default function SaleModule() {
                           </td>
                           <td style={styles.td(isDark)}>
                             <div style={{ display: 'flex', gap: 6, flexWrap: 'nowrap' }}>
-                              <button onClick={() => openPayModal(sale)} style={styles.btnPaySm}>💳 Pay</button>
-                              <button onClick={() => openEditSale(sale)} style={styles.btnEditSm}>✏️ Edit</button>
-                              <button onClick={() => openDelSale(sale)}  style={styles.btnDelSm}>🗑️ Del</button>
+                              <button onClick={() => openPayModal(sale)} style={styles.btnPaySm}>
+                                {canEdit ? '💳 Pay' : '👁️ View'}
+                              </button>
+                              {canEdit && (
+                                <button onClick={() => openEditSale(sale)} style={styles.btnEditSm}>✏️ Edit</button>
+                              )}
+                              {canDelete && (
+                                <button onClick={() => openDelSale(sale)}  style={styles.btnDelSm}>🗑️ Del</button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -694,14 +705,18 @@ export default function SaleModule() {
                         {/* Action buttons */}
                         <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
                           <button onClick={() => openPayModal(sale)} style={{ ...styles.btnPaySm, flex: 1, padding: '7px' }}>
-                            💳 Pay ({Math.round(pctPaid)}%)
+                            {canEdit ? `💳 Pay (${Math.round(pctPaid)}%)` : `👁️ Payments (${Math.round(pctPaid)}%)`}
                           </button>
-                          <button onClick={() => openEditSale(sale)} style={{ ...styles.btnEditSm, padding: '7px 12px' }}>
-                            Edit
-                          </button>
-                          <button onClick={() => openDelSale(sale)}  style={{ ...styles.btnDelSm, padding: '7px 12px' }}>
-                            Del
-                          </button>
+                          {canEdit && (
+                            <button onClick={() => openEditSale(sale)} style={{ ...styles.btnEditSm, padding: '7px 12px' }}>
+                              Edit
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button onClick={() => openDelSale(sale)}  style={{ ...styles.btnDelSm, padding: '7px 12px' }}>
+                              Del
+                            </button>
+                          )}
                         </div>
                       </div>
                     );
@@ -913,9 +928,11 @@ export default function SaleModule() {
                           </div>
                           {p.notes && <div style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#888', fontStyle: 'italic', marginTop: 1 }}>{p.notes}</div>}
                         </div>
-                        <button onClick={() => handleDeletePayment(p.id)} style={styles.btnDelSm}>
-                          Delete
-                        </button>
+                        {canDelete && (
+                          <button onClick={() => handleDeletePayment(p.id)} style={styles.btnDelSm}>
+                            Delete
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -927,7 +944,7 @@ export default function SaleModule() {
               </div>
 
               {/* Add Payment Form */}
-              {paymentSale.balanceDue > 0 && (
+              {canEdit && paymentSale.balanceDue > 0 && (
                 <>
                   {!showPayForm ? (
                     <button onClick={() => setShowPayForm(true)} style={styles.btnSuccessWide}>

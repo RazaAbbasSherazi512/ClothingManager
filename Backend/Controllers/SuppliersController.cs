@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ClothingManager.Authorization;
 using ClothingManager.Data;
 using ClothingManager.DTOs;
 using ClothingManager.Models;
@@ -57,6 +58,7 @@ public class SuppliersController : ControllerBase
     }
 
     [HttpPost]
+    [RequirePermission("canAddSettings")]
     public async Task<IActionResult> Create([FromBody] SupplierCreateDto dto)
     {
         var supplier = new Supplier
@@ -76,6 +78,7 @@ public class SuppliersController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [RequirePermission("canEditSettings")]
     public async Task<IActionResult> Update(int id, [FromBody] SupplierCreateDto dto)
     {
         var supplier = await _db.Suppliers.FindAsync(id);
@@ -95,6 +98,7 @@ public class SuppliersController : ControllerBase
     }
 
     [HttpPatch("{id}/toggle-status")]
+    [RequirePermission("canEditSettings")]
     public async Task<IActionResult> ToggleStatus(int id)
     {
         var supplier = await _db.Suppliers.FindAsync(id);
@@ -109,6 +113,7 @@ public class SuppliersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [RequirePermission("canDeleteSettings")]
     public async Task<IActionResult> Delete(int id)
     {
         var supplier = await _db.Suppliers

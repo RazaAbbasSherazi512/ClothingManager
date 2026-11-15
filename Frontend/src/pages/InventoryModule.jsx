@@ -3,6 +3,7 @@ import {
   getInventorySummary, getInventoryStock, getInventoryUsages, getLotUsage,
   createUsage, updateUsage, deleteUsage, getLots,
 } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import LotHistoryModal from '../components/LotHistoryModal';
 
@@ -431,6 +432,10 @@ function StockTab({ isDark }) {
 // USAGE LOG TAB
 // ─────────────────────────────────────────────────────────────────────────────
 function UsageLogTab({ isDark, onSelectLot }) {
+  const { can } = useAuth();
+  const canAdd    = can('canAddSettings');
+  const canEdit   = can('canEditSettings');
+  const canDelete = can('canDeleteSettings');
   const [usages,    setUsages]    = useState([]);
   const [stock,     setStock]     = useState([]);
   const [lots,      setLots]      = useState([]);
@@ -620,14 +625,16 @@ function UsageLogTab({ isDark, onSelectLot }) {
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button onClick={openAdd} style={styles.addBtn}>
-            <span>+</span> Log Usage
-          </button>
-          <button onClick={openMulti} style={styles.btnPurple}>
-            <span>📦</span> Multi-Lot
-          </button>
-        </div>
+        {canAdd && (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button onClick={openAdd} style={styles.addBtn}>
+              <span>+</span> Log Usage
+            </button>
+            <button onClick={openMulti} style={styles.btnPurple}>
+              <span>📦</span> Multi-Lot
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Table ── */}
@@ -639,7 +646,7 @@ function UsageLogTab({ isDark, onSelectLot }) {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  {['Date', 'Lot #', 'Size', 'Bag #', 'Material', 'Type', 'Supplier', 'Qty Used', 'Remarks', 'Actions'].map(h => (
+                  {['Date', 'Lot #', 'Size', 'Bag #', 'Material', 'Type', 'Supplier', 'Qty Used', 'Remarks', ...(canEdit || canDelete ? ['Actions'] : [])].map(h => (
                     <th key={h} style={styles.th(isDark, h === 'Qty Used')}>{h}</th>
                   ))}
                 </tr>
@@ -672,12 +679,14 @@ function UsageLogTab({ isDark, onSelectLot }) {
                     <td style={{ ...styles.td(isDark), color: isDark ? 'var(--text-muted)' : '#6c757d', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {u.notes || '—'}
                     </td>
-                    <td style={styles.td(isDark)}>
-                      <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                        <button onClick={() => openEdit(u)} style={styles.btnEditSm}>Edit</button>
-                        <button onClick={() => setDelTarget(u)} style={styles.btnDelSm}>Del</button>
-                      </div>
-                    </td>
+                    {(canEdit || canDelete) && (
+                      <td style={styles.td(isDark)}>
+                        <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+                          {canEdit && <button onClick={() => openEdit(u)} style={styles.btnEditSm}>Edit</button>}
+                          {canDelete && <button onClick={() => setDelTarget(u)} style={styles.btnDelSm}>Del</button>}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
