@@ -66,6 +66,9 @@ public class AppDbContext : DbContext
             .HasOne(t => t.Account).WithMany(a => a.Transactions).HasForeignKey(t => t.AccountId);
         modelBuilder.Entity<Account>().Property(a => a.Balance).HasPrecision(18, 2);
         modelBuilder.Entity<Transaction>().Property(t => t.Amount).HasPrecision(18, 2);
+        modelBuilder.Entity<Transaction>().HasIndex(t => t.Date);
+        modelBuilder.Entity<AuditLog>().HasIndex(a => a.Timestamp);
+        modelBuilder.Entity<AuditLog>().HasIndex(a => a.Module);
 
         // ── Seed Sizes ──
         modelBuilder.Entity<Size>().HasData(
