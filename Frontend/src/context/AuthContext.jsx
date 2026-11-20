@@ -3,6 +3,11 @@ import { login as apiLogin } from '../services/api';
 
 const AuthContext = createContext(null);
 
+const CURRENT_YEAR = new Date().getFullYear();
+export const AVAILABLE_YEARS = Array.from(
+  new Set([2024, 2025, 2026, CURRENT_YEAR, CURRENT_YEAR + 1])
+).sort((a, b) => a - b);
+
 export const PERMISSIONS = {
   Admin: {
     canViewLabour:true, canAddLabour:true, canEditLabour:true, canDeleteLabour:true,
@@ -68,6 +73,11 @@ const buildUser = (data) => {
 };
 
 export function AuthProvider({ children }) {
+  const [selectedYear, setSelectedYearState] = useState(() => {
+    const saved = Number(sessionStorage.getItem('cm_year'));
+    return saved >= 2000 && saved <= 2100 ? saved : CURRENT_YEAR;
+  });
+
   const [user, setUser] = useState(() => {
     try {
       const saved = sessionStorage.getItem('cm_user');
@@ -78,7 +88,23 @@ export function AuthProvider({ children }) {
     } catch { return null; }
   });
 
-  const login = async (username, password, onSuccess) => {
+  const setSelectedYear = (year) => {
+    const y = Number(year);
+    if (!y || y < 2000 || y > 2100) return;
+    setSelectedYearState(y);
+    sessionStorage.setItem('cm_year', String(y));
+  };
+
+  const login = async (username, password, yearOrCallback, maybeCallback) => {
+    const isYearArg = typeof yearOrCallback === 'number' || typeof yearOrCallback === 'string';
+    const year = isYearArg ? Number(yearOrCallback) : selectedYear;
+    const onSuccess = isYearArg ? maybeCallback : yearOrCallback;
+
+    if (year >= 2000 && year <= 2100) {
+      setSelectedYearState(year);
+      sessionStorage.setItem('cm_year', String(year));
+    }
+
     sessionStorage.removeItem('cm_user');
     try {
       const data = await apiLogin({ username, password });
@@ -113,7 +139,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, can }}>
+    <AuthContext.Provider value={{ user, login, logout, can, selectedYear, setSelectedYear }}>
       {children}
     </AuthContext.Provider>
   );

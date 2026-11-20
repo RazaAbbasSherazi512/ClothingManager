@@ -19,9 +19,14 @@ const LOCAL_CRED_MAP = {
 };
 let _upgradingTokenPromise = null;
 
-// Attach JWT token (and auto-upgrade legacy local-* tokens to real JWTs)
+// Attach JWT token (and auto-upgrade legacy local-* tokens to real JWTs) + Working Year header
 api.interceptors.request.use(async config => {
   try {
+    const savedYear = sessionStorage.getItem('cm_year');
+    if (savedYear) {
+      config.headers['X-Working-Year'] = savedYear;
+    }
+
     const saved = sessionStorage.getItem('cm_user');
     if (saved) {
       let parsed = JSON.parse(saved);

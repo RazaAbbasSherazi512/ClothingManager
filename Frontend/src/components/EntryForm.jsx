@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { createEntry, updateEntry } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { buildAssignedTaskColumns } from '../utils/wageUtils';
 
 const MONTH_NAMES = [
@@ -30,6 +31,7 @@ function formatDisplayDate(ymd) {
 
 export default function EntryForm({ workerId, columns, entry, dropdowns, wageRates, taskRatesMap, workerRate, onSaved, onCancel }) {
   const { isDark, currentColor } = useTheme();
+  const { selectedYear } = useAuth();
   const { register, handleSubmit, reset, setValue, control, getValues, watch } = useForm();
   const [saveError, setSaveError] = useState('');
   const watchedSizeId        = useWatch({ control, name: 'sizeId' });
@@ -61,7 +63,7 @@ export default function EntryForm({ workerId, columns, entry, dropdowns, wageRat
   const [calOpen, setCalOpen] = useState(false);
   const [calView, setCalView] = useState(() => {
     const now = new Date();
-    return { year: now.getFullYear(), month: now.getMonth() };
+    return { year: selectedYear || now.getFullYear(), month: now.getMonth() };
   });
   const calWrapRef = useRef(null);
 

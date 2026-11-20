@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using ClothingManager.Models;
 using System.Security.Cryptography;
@@ -7,7 +8,16 @@ namespace ClothingManager.Data;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    public int? SelectedYear { get; }
+
+    public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor? httpContextAccessor = null) : base(options)
+    {
+        var rawYear = httpContextAccessor?.HttpContext?.Request.Headers["X-Working-Year"].FirstOrDefault();
+        if (int.TryParse(rawYear, out var parsedYear) && parsedYear >= 2000 && parsedYear <= 2100)
+        {
+            SelectedYear = parsedYear;
+        }
+    }
 
     public DbSet<Worker> Workers => Set<Worker>();
     public DbSet<Lot> Lots => Set<Lot>();
@@ -192,6 +202,84 @@ public class AppDbContext : DbContext
             new Account { Id = 2, Name = "Sales Income",    CategoryId = 1, Balance = 0, Description = "Revenue from sales",      IsActive = true },
             new Account { Id = 3, Name = "Labour Expense",  CategoryId = 2, Balance = 0, Description = "Labour payment expenses", IsActive = true },
             new Account { Id = 4, Name = "Material Cost",   CategoryId = 2, Balance = 0, Description = "Raw material costs",      IsActive = true });
+
+        // ── Global Working-Year Query Filters (filtered when X-Working-Year header is provided) ──
+        modelBuilder.Entity<Worker>()
+            .HasQueryFilter(w => !SelectedYear.HasValue || w.CreatedAt.Year == SelectedYear.Value);
+
+        modelBuilder.Entity<WageRate>()
+            .HasQueryFilter(wr => !SelectedYear.HasValue || wr.CreatedAt.Year == SelectedYear.Value);
+
+        modelBuilder.Entity<Lot>()
+            .HasQueryFilter(l => !SelectedYear.HasValue || l.CreatedAt.Year == SelectedYear.Value);
+
+        modelBuilder.Entity<WorkerEntry>()
+            .HasQueryFilter(e => !SelectedYear.HasValue || (e.DateCompleted.HasValue ? e.DateCompleted.Value.Year == SelectedYear.Value : e.CreatedAt.Year == SelectedYear.Value));
+
+        modelBuilder.Entity<WagePayment>()
+            .HasQueryFilter(wp => !SelectedYear.HasValue || wp.PaidAt.Year == SelectedYear.Value);
+
+        modelBuilder.Entity<WorkerAdvance>()
+            .HasQueryFilter(wa => !SelectedYear.HasValue || wa.AdvanceDate.Year == SelectedYear.Value);
+
+        modelBuilder.Entity<BagPurchase>()
+            .HasQueryFilter(bp => !SelectedYear.HasValue || bp.PurchaseDate.Year == SelectedYear.Value);
+
+        modelBuilder.Entity<InventoryUsage>()
+            .HasQueryFilter(iu => !SelectedYear.HasValue || iu.UsageDate.Year == SelectedYear.Value);
+
+        modelBuilder.Entity<Sale>()
+            .HasQueryFilter(s => !SelectedYear.HasValue || s.SaleDate.Year == SelectedYear.Value);
+
+        modelBuilder.Entity<SalePayment>()
+            .HasQueryFilter(sp => !SelectedYear.HasValue || sp.PaymentDate.Year == SelectedYear.Value);
+
+        modelBuilder.Entity<Transaction>()
+            .HasQueryFilter(t => !SelectedYear.HasValue || t.Date.Year == SelectedYear.Value);
+
+        modelBuilder.Entity<AuditLog>()
+            .HasQueryFilter(a => !SelectedYear.HasValue || a.Timestamp.Year == SelectedYear.Value);
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        if (SelectedYear.HasValue)
+        {
+            var yr = SelectedYear.Value;
+            var now = DateTime.UtcNow;
+            var safeDay = Math.Min(now.Day, DateTime.DaysInMonth(yr, now.Month));
+            var yearDate = new DateTime(yr, now.Month, safeDay, now.Hour, now.Minute, now.Second, DateTimeKind.Utc);
+
+            foreach (var w in ChangeTracker.Entries<Worker>().Where(x => x.State == EntityState.Added))
+            {
+                if (w.Entity.CreatedAt.Year != yr)
+                    w.Entity.CreatedAt = yearDate;
+            }
+            foreach (var wr in ChangeTracker.Entries<WageRate>().Where(x => x.State == EntityState.Added))
+            {
+                if (wr.Entity.CreatedAt.Year != yr)
+                {
+                    wr.Entity.CreatedAt = yearDate;
+                    wr.Entity.UpdatedAt = yearDate;
+                }
+            }
+            foreach (var l in ChangeTracker.Entries<Lot>().Where(x => x.State == EntityState.Added))
+            {
+                if (l.Entity.CreatedAt.Year != yr)
+                    l.Entity.CreatedAt = yearDate;
+            }
+            foreach (var e in ChangeTracker.Entries<WorkerEntry>().Where(x => x.State == EntityState.Added))
+            {
+                if (!e.Entity.DateCompleted.HasValue && e.Entity.CreatedAt.Year != yr)
+                    e.Entity.CreatedAt = yearDate;
+            }
+            foreach (var a in ChangeTracker.Entries<AuditLog>().Where(x => x.State == EntityState.Added))
+            {
+                if (a.Entity.Timestamp.Year != yr)
+                    a.Entity.Timestamp = yearDate;
+            }
+        }
+        return base.SaveChangesAsync(cancellationToken);
     }
 
     public static string HashPassword(string password)

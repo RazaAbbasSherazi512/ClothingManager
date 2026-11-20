@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, AVAILABLE_YEARS } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 const ROLE_COLORS = { Admin: '#2E75B6', Manager: '#70AD47', Viewer: '#C55A11' };
@@ -7,7 +7,7 @@ const ROLE_COLORS = { Admin: '#2E75B6', Manager: '#70AD47', Viewer: '#C55A11' };
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, can } = useAuth();
+  const { user, logout, can, selectedYear, setSelectedYear } = useAuth();
   const { mode, activeMode, toggleMode, openThemeModal, currentColor, isDark } = useTheme();
 
   const isWorkerActive = location.pathname === '/staff' ||
@@ -30,9 +30,36 @@ export default function Sidebar() {
           </div>
           <div style={ss.userInfo}>
             <div style={ss.userName}>{user.name}</div>
-            <span style={{ ...ss.roleBadge, background: ROLE_COLORS[user.role] || '#2E75B6' }}>
-              {user.role}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+              <span style={{ ...ss.roleBadge, background: ROLE_COLORS[user.role] || '#2E75B6' }}>
+                {user.role}
+              </span>
+              <select
+                value={selectedYear}
+                onChange={e => {
+                  setSelectedYear(Number(e.target.value));
+                  window.location.reload();
+                }}
+                title="Switch Active Working Year"
+                style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  color: '#f8fafc',
+                  border: '1px solid rgba(255,255,255,0.22)',
+                  borderRadius: 4,
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  padding: '1px 5px',
+                  cursor: 'pointer',
+                  outline: 'none',
+                }}
+              >
+                {AVAILABLE_YEARS.map(yr => (
+                  <option key={yr} value={yr} style={{ background: '#1e293b', color: '#f8fafc' }}>
+                    📅 {yr}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       )}
