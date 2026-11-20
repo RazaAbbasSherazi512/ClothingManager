@@ -136,6 +136,12 @@ export default function Sidebar() {
         <NavLink to="/staff" style={({ isActive }) => ss.link(isActive || isWorkerActive)}>
           👷 Staff
         </NavLink>
+
+        <div style={ss.divider}>PUBLIC SITE</div>
+
+        <NavLink to="/website" style={({ isActive }) => ss.link(isActive)}>
+          🌐 Muzammal Hosiery
+        </NavLink>
       </nav>
 
       <div style={ss.bottom}>

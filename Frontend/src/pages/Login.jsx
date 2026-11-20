@@ -56,8 +56,24 @@ export default function Login() {
       <div style={s.card(isDark)}>
         <div style={s.logoWrap}>
           <div style={s.logoIcon}>🧵</div>
-          <div style={s.logoText(isDark)}>Clothing Manager</div>
-          <div style={s.logoSub(isDark)}>Production Management System</div>
+          <div style={s.logoText(isDark)}>Muzammal Hosiery</div>
+          <div style={s.logoSub(isDark)}>Clothing Manager — Production ERP</div>
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            style={{
+              marginTop: 10,
+              background: 'none',
+              border: 'none',
+              color: isDark ? '#fbbf24' : '#2563eb',
+              fontSize: 12.5,
+              fontWeight: 700,
+              cursor: 'pointer',
+              textDecoration: 'underline',
+            }}
+          >
+            ← Back to Muzammal Hosiery Website
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} style={s.form}>
@@ -102,7 +118,7 @@ export default function Login() {
           </button>
         </form>
 
-        <div style={s.demoBox(isDark)}>
+        {/* <div style={s.demoBox(isDark)}>
           <div style={s.demoTitle(isDark)}>DEMO CREDENTIALS</div>
           {[
             { role: 'Admin',   user: 'admin',   pass: 'admin123',   color: '#2E75B6' },
@@ -140,7 +156,7 @@ export default function Login() {
           >
             {seeding ? '⏳ Verifying Database...' : '⚡ Seed / Verify Database Users & Permissions'}
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
