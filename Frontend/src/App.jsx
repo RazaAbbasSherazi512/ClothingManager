@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import ThemeModal from './components/ThemeModal';
 import Sidebar from './components/Sidebar';
+import MuzammalWebsite from './pages/MuzammalWebsite';
 import Login from './pages/Login';
 import LabourModule from './pages/LabourModule';
 import AccountsModule from './pages/AccountsModule';
@@ -57,6 +58,7 @@ function RequireRole({ children, permission }) {
 function AppLayout() {
   const { user } = useAuth();
   const { isDark } = useTheme();
+  const location = useLocation();
 
   useEffect(() => {
     const handleDateInputClick = (e) => {
@@ -76,10 +78,16 @@ function AppLayout() {
   if (!user) {
     return (
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="*"      element={<Navigate to="/login" replace />} />
+        <Route path="/"        element={<MuzammalWebsite />} />
+        <Route path="/website" element={<MuzammalWebsite />} />
+        <Route path="/login"   element={<Login />} />
+        <Route path="*"        element={<Navigate to="/" replace />} />
       </Routes>
     );
+  }
+
+  if (location.pathname === '/website') {
+    return <MuzammalWebsite />;
   }
 
   return (
@@ -126,7 +134,7 @@ function getRouterBasename() {
   const path = window.location.pathname || '/';
   const firstSegment = path.split('/').filter(Boolean)[0];
   const appRoutes = new Set([
-    'login', 'dashboard', 'wages', 'worker-payments', 'labour', 'settings', 'purchasing',
+    'website', 'login', 'dashboard', 'wages', 'worker-payments', 'labour', 'settings', 'purchasing',
     'inventory', 'customers', 'sales', 'accounts', 'roles', 'activity-log',
     'reports', 'lot-status', 'staff', 'worker', 'ali-hassan', 'faizan',
     'gujjar-press', 'arslan', 'nazir', 'umer-safty', 'naveed-rafo',

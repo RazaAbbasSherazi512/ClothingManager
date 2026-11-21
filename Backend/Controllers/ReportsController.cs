@@ -14,10 +14,14 @@ public class ReportsController : ControllerBase
     private readonly AppDbContext _db;
     public ReportsController(AppDbContext db) => _db = db;
 
-    private static (DateTime From, DateTime To) ParseRange(DateTime? from, DateTime? to)
+    private (DateTime From, DateTime To) ParseRange(DateTime? from, DateTime? to)
     {
-        var f = (from ?? new DateTime(DateTime.UtcNow.Year, 1, 1)).Date;
-        var t = (to ?? DateTime.UtcNow).Date.AddDays(1).AddTicks(-1);
+        var yr = _db.SelectedYear ?? DateTime.UtcNow.Year;
+        var f = (from ?? new DateTime(yr, 1, 1)).Date;
+        var defaultTo = _db.SelectedYear.HasValue && _db.SelectedYear.Value != DateTime.UtcNow.Year
+            ? new DateTime(yr, 12, 31)
+            : DateTime.UtcNow;
+        var t = (to ?? defaultTo).Date.AddDays(1).AddTicks(-1);
         return (f, t);
     }
 

@@ -57,6 +57,7 @@ public class WorkerEntryService
     public async Task<WorkerEntryDto?> GetByIdAsync(int id)
     {
         var e = await _db.WorkerEntries
+            .IgnoreQueryFilters()
             .Include(e => e.Worker).Include(e => e.Lot)
             .Include(e => e.Size).Include(e => e.Color).Include(e => e.Machine)
             .FirstOrDefaultAsync(e => e.Id == id);
